@@ -30,10 +30,10 @@ class Plotter:
 BLUE = (0, 0, 255)
 GRAY = (49, 51, 53)
 WHITE = (255, 255, 255)
-RED = (255, 0, 0) 
+RED = (255, 0, 0)
 
 def draw_grid(screen, font, env, agent_pos, opened, game_over=False, elapsed_time=0, panel_height=0):
-    """Отрисовывает сетку игры с панелью для времени и оставшихся ходов."""
+    """Отрисовывает сетку игры с панелью для времени, ходов и смайликом."""
     # Загрузка изображений клеток
     try:
         closed_img = pygame.image.load('utils/images/НК.png').convert_alpha()
@@ -47,6 +47,9 @@ def draw_grid(screen, font, env, agent_pos, opened, game_over=False, elapsed_tim
             for i in range(1, 8)
         }
         number_imgs = {i: pygame.transform.scale(img, (50, 50)) for i, img in number_imgs.items()}
+        # Загрузка смайлика
+        smile_img = pygame.image.load('utils/images/newgame.png').convert_alpha()
+        smile_img = pygame.transform.scale(smile_img, (40, 40))  # Масштабирование для панели
     except pygame.error as e:
         print(f"Ошибка загрузки изображений: {e}")
         return
@@ -62,6 +65,8 @@ def draw_grid(screen, font, env, agent_pos, opened, game_over=False, elapsed_tim
     moves_text = font.render(f"Ходов: {moves_left}", True, RED)  # Красный текст
     screen.blit(time_text, (10, 10))
     screen.blit(moves_text, (env.cols * CELL_SIZE - moves_text.get_width() - 10, 10))
+    # Отрисовка смайлика в центре панели
+    screen.blit(smile_img, (env.cols * CELL_SIZE // 2 - 20, panel_height // 2 - 20))
 
     # Отрисовка игрового поля (смещено вниз на panel_height)
     for i in range(env.rows):
@@ -84,10 +89,5 @@ def draw_grid(screen, font, env, agent_pos, opened, game_over=False, elapsed_tim
             if pos == agent_pos:
                 pygame.draw.rect(screen, BLUE, rect, 4)
             pygame.draw.rect(screen, GRAY, rect, 1)
-
-    # Результат игры
-    if game_over:
-        result_text = font.render("Победа!" if len(opened) == env.total_safe else "Игра окончена", True, RED)  # Красный текст
-        screen.blit(result_text, (10, panel_height + 10))
 
     pygame.display.flip()
